@@ -1,0 +1,282 @@
+call plug#begin('~/.vim/plugged')
+Plug 'vim-scripts/L9'
+Plug 'vim-scripts/FuzzyFinder'
+Plug 'scrooloose/nerdtree'
+Plug 'vim-erlang/vim-erlang-compiler'
+Plug 'vim-erlang/vim-erlang-omnicomplete'
+Plug 'vim-erlang/vim-erlang-tags'
+Plug 'nathanaelkane/vim-indent-guides'
+Plug 'vim-syntastic/syntastic'
+"Plug 'vim-scripts/AutoComplPop'
+Plug 'Valloric/YouCompleteMe',{'do':'python3 install.py'}
+call plug#end()
+set nocompatible
+source $VIMRUNTIME/vimrc_example.vim
+source $VIMRUNTIME/mswin.vim
+behave mswin
+"关闭自动备份
+syntax on
+filetype on
+filetype plugin on
+filetype indent on
+set fileencoding=utf-8
+set fileencodings=ucs-bom,utf-8,gbk,big5
+set fileformats=unix,mac,dos
+set expandtab tabstop=4 shiftwidth=4
+colorscheme desert
+set laststatus=2
+set encoding=utf-8
+set langmenu=en_US.UTF-8
+language message en_US.UTF-8
+set statusline=%f\ \%h%m%r%r%=%-35(%l,%c\ [0x%B]\ (%L\ lines)\ [%{&ff}:%{&fenc}]\ %y%)\ %P
+"set grepprg=d:/cygwin64/bin/grep\ -nri\ --include=*.{erl,php,js,as,html,py,pyw}
+set grepprg=grep\ -nri\ --include=*.{erl,hrl,php,js,as,html,py,pyw,lua}
+" set grepprg=findstr\ /n/s
+
+" 取消换行自动注释
+autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
+
+" 窗口简洁一下
+if has("gui_running")
+    set guioptions=
+endif
+" 缩进对齐帮助
+if has("gui_running")
+    let g:indent_guides_guide_size = 1
+    let g:indent_guides_enable_on_vim_startup = 1
+endif
+
+"设置leader键
+let mapleader = ","
+let g:mapleader = ","
+
+let g:ycm_semantic_triggers =  {
+    \   'erlang': [':'],
+    \}
+"let g:ycm_filetype_whitelist = {
+"			\ "*.erl":1,
+"			\ "*.hrl":1,
+"			\ }
+inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+let g:ycm_add_preview_to_completeopt = 0
+let g:ycm_show_diagnostics_ui = 0
+let g:ycm_server_log_level = 'info'
+let g:ycm_min_num_identifier_candidate_chars = 2
+let g:ycm_collect_identifiers_from_comments_and_strings = 1
+let g:ycm_complete_in_strings=1
+let g:ycm_key_invoke_completion = '<c-z>'
+set completeopt=menu,menuone
+let g:ycm_collect_identifiers_from_tags_files=1
+let g:ycm_seed_identifiers_with_syntax=1
+let g:ycm_cache_omnifunc = 0
+
+" 默认目录
+cd /data/xx.dev/server/
+"文件浏览相关
+map <f1> :NERDTreeToggle<cr>
+map <leader>l :NERDTree %:p:h<cr>
+map <leader>1 :cd /data/xx.dev/server/<cr>
+map <leader>2 :cd /data/xx.dev/tools/<cr>
+map <leader>3 :cd /data/xxwy.dev/server/<cr>
+map <leader>4 :cd /data/xxwy.dev/tools/<cr>
+map <leader>5 :cd /usr/local/Cellar/erlang@17/<cr>
+map <leader>6 :cd /usr/local/Cellar/erlang@19/<cr>
+map <leader>7 :cd /data/test/server/<cr>
+map <leader>cd :cd %:p:h<cr>
+"分割打开当前目录
+map <leader>f :new ./<cr>
+map <leader>v :vnew ./<cr>
+map <leader>s :sp<cr>
+"查找当前目录包括子目录下的所有文件(注意:如果文件很多，打开时会卡好久)
+let g:fuf_coveragefile_exclude = '\v\~$|\.(o|exe|dll|beam|html|bak|orig|sw[po])$|(^|[/\\])\.(hg|git|bzr)($|[/\\])'
+map <leader>q :FufCoverageFile<cr>
+"tab切换
+map <leader>r :tabnew ./<cr>
+map <leader>b :tabp<cr>
+map <leader>g :tabn<cr>
+map <leader>t :tabe<cr>
+"梆定quickfix快捷键
+nmap <leader>cc :cc<cr>     "跳转到当前
+nmap <leader>cn :cn<cr>     "跳转到下一个
+nmap <leader>cp :cp<cr>     "跳转到上一个
+nmap <leader>co :copen<cr>  "打开quickfix窗口
+nmap <leader>cq :cclose<cr> "关闭quickfix窗口
+nmap <leader>cw :cw<cr>     "
+nmap <leader>cr :cr<cr>
+nmap <leader>cl :cl<cr>
+" buffer 切换
+nmap <silent> <m-h> :bp<cr> "切换到上一个buffer
+nmap <silent> <m-l> :bn<cr> "切换到下一个buffer
+nmap <silent> <m-n> :noh<cr> "取消高亮显示
+
+" 针对erlang特别处理下
+autocmd FileType erlang set omnifunc=erlang_complete#Complete
+" 将app文件当成erlang文件处理
+autocmd BufRead,BufNewFile *.app set filetype=erlang
+autocmd BufRead,BufNewFile Emakefile set filetype=erlang
+autocmd BufRead,BufNewFile *.hrl set filetype=erlang
+" autocmd GUIEnter * call libcallnr("vimtweak.dll", "SetAlpha", 500)
+
+"设置语法检查工具
+let g:syntastic_enable_signs=1
+let g:syntastic_check_on_open = 1
+" let g:syntastic_auto_loc_list=1
+" set statusline+=%#warningmsg#
+" set statusline+=%{SyntasticStatuslineFlag()}
+" set statusline+=%*
+
+"Errors显示切换
+" map! <m-e> <c-o>:call ToggleErrors()<cr>
+map <c-i> :call ToggleErrors()<cr>
+function! ToggleErrors()
+    if !exists("g:errors_is_show")
+        let g:errors_is_show = 0
+    endif
+    if g:errors_is_show
+        let g:errors_is_show = 0
+        lclose
+    else
+        let g:errors_is_show = 1
+        " Errors 需要Syntastic插件支持
+        Errors
+    endif
+endfunction
+
+" quickfix 编码修正
+function QfMakeConv()
+    let qflist = getqflist()
+    for i in qflist
+        let i.text = iconv(i.text, "utf-8", "cp936")
+    endfor
+    call setqflist(qflist)
+    copen
+endfunction
+
+au QuickfixCmdPost make call QfMakeConv()
+au QuickfixCmdPost grep call QfMakeConv()
+
+
+" php 检查
+function! CheckSyntax()
+    if &filetype!="php"
+        echohl WarningMsg | echo "Fail to check syntax! Please select the right file!" | echohl None
+        return
+    endif
+    if &filetype=="php"
+        " Check php syntax
+        setlocal makeprg=\"php\"\ -l\ -n\ -d\ html_errors=off
+        " Set shellpipe
+  setlocal shellpipe=>
+  " Use error format for parsing PHP error output
+  setlocal errorformat=%m\ in\ %f\ on\ line\ %l
+ endif
+ execute "silent make %"
+ set makeprg=make
+ execute "normal :"
+ execute "copen"
+endfunction
+map <F6> :call CheckSyntax()<CR>
+
+" erlang_checker
+function! CheckSyntaxErlang()
+    if executable("escript.exe") " for windows
+        setlocal makeprg=escript\ d:\erlang_checker.erl
+    else
+        setlocal makeprg = "escript ~/.vim/vimfiles/syntax_checkers/erlang_checker.erl ".shellescape(expand('%'))
+    endif
+
+    setlocal shellpipe=>
+    setlocal errorformat=%f:%l:\ %tarning:\ %m,%E%f:%l:\ %m
+    execute "silent make %"
+    set makeprg=make
+    execute "normal :"
+    execute "copen"
+endfunction
+map <F7> :call CheckSyntaxErlang()<CR>
+
+set noundofile
+set backup
+set nobk nu
+set noswapfile
+
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let eq = ''
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      let cmd = '""' . $VIMRUNTIME . '\diff"'
+      let eq = '"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
+endfunction
+
+let g:acp_ignorecaseOption=0
+"""""""""""""""""""""""""""""""""
+" 缩写
+"""""""""""""""""""""""""""""""""
+"Html代码缩写
+iab <xhtml>  <esc>:set filetype=xhtml<cr>:set fileencoding=utf-8<cr>i<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><cr><html xmlns="http://www.w3.org/1999/xhtml"><cr><head><cr><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><cr><meta name="keywords" content="" /><cr><title></title><cr></head><cr><body><cr></body><cr></html><esc>4k
+iab <refresh> <meta http-equiv="refresh" content="0;url="><esc>hh
+iab <css> <style type="text/css"><cr></style><esc>O
+iab <cssm> <style type="text/css"><cr>*{margin:0; padding:0;}<cr>ul{list-style:none;}<cr></style><esc>k
+iab <ci> <link rel="stylesheet" type="text/css" href="" /><esc>2b1l
+iab <js> <script type="text/javascript"><cr></script><esc>O
+iab <ji> <script type="text/javascript" src=""></script><esc>2b1l
+iab <swf> <object type="application/x-shockwave-flash" data="0000" width="0000" height="0000"><param name="movie" value="0000" /></object><esc>/0000<cr>h
+iab <form> <form method="post"><cr></form><esc>1k1h
+iab <input> <input type="text" name="0000" value="0000" /><esc>/0000<cr>h
+iab <radio> <input type="radio" name="0000" value="0000" />0000<esc>/0000<cr>h
+iab <select> <select name="0000"><cr><option value="0000">0000</option><cr><option value="0000">0000</option><cr></select><esc>/0000<cr>h
+iab <cb> <input type="checkbox" name="0000" value="0000" />0000<esc>/0000<cr>h
+iab <submit> <input type="submit" name="submit" value="submit" /><esc>h
+iab <btn> <input type="button" name="0000" value="0000" /><esc>/0000<cr>h
+iab <img> <img src="0000" alt="0000" /><esc>/0000<cr>h
+iab <u> <ul><cr><li>0000</li><cr><li>0000</li><cr></ul><esc>/0000<cr>h
+iab <a> <a href="0000">0000</a><esc>/0000<cr>h
+iab id> id=""<esc>hh
+iab <tb> <table><cr><tr><td>0000</td></tr><cr></table><esc>/0000<cr>h
+iab <tr> <tr><td>0000</td></tr><esc>/0000<cr>h
+iab <td> <td>0000</td><esc>/0000<cr>h
+iab f> function (){<cr>}<esc>1k$3h
+
+"erlang代码缩写
+iab <erl> <esc>:set filetype=erlang<cr>:set fileencoding=utf-8<cr>i%%----------------------------------------------------<cr>%% @doc<cr>%% <cr>%% @author shealee.cc@outlook.com<cr>%% @end<cr>%%----------------------------------------------------<cr>-module().<cr>-export([]).<cr><cr>%%----------------------------------------------------<cr>%% 外部接口<cr>%%----------------------------------------------------<cr><cr>%%----------------------------------------------------<cr>%% 内部私有<cr>%%----------------------------------------------------<cr><cr>%%----------------------------------------------------<cr>%% 测试用例<cr>%%----------------------------------------------------<cr><cr>-include_lib("eunit/include/eunit.hrl").<cr>-ifdef(TEST).<cr><cr>-endif.<esc>4kl
+" 注释
+iab <%%> <esc>i%%----------------------------------------------------<cr>%%<cr>%%----------------------------------------------------<cr><esc>2kl
+" gen_server
+iab <gs> <esc>:set filetype=erlang<cr>:set fileencoding=utf-8<cr>i%%----------------------------------------------------<cr>%% @doc<cr>%% <cr>%% @author shealee.cc@outlook.com<cr>%% @end<cr>%%----------------------------------------------------<cr>-module().<cr>-behaviour(gen_server).<cr>-export([start_link/0]).<cr>-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).<cr><cr>-record(state, {}).<cr><cr>%%----------------------------------------------------<cr>%% 外部接口<cr>%%----------------------------------------------------<cr><cr>start_link() -><cr>gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).<cr><cr>%%----------------------------------------------------<cr>%% OTP apis<cr>%%----------------------------------------------------<cr><cr>init([]) -><cr>State = #state{},<cr>{ok, State}.<cr><cr>handle_call(_Request, _From, State) -><cr>{noreply, State}.<cr><cr>handle_cast(_Msg, State) -><cr>{noreply, State}.<cr><cr>handle_info(_Info, State) -><cr>{noreply, State}.<cr><cr>terminate(_Reason, _State) -><cr>ok.<cr><cr>code_change(_OldVsn, State, _Extra) -><cr>{ok, State}.<cr><cr>%%----------------------------------------------------<cr>%% 内部私有<cr>%%----------------------------------------------------<cr><cr>%%----------------------------------------------------<cr>%% 测试用例<cr>%%----------------------------------------------------<cr><cr>-include_lib("eunit/include/eunit.hrl").<cr>-ifdef(TEST).<cr><cr>-endif.<esc>2GA
+" gen_fsm
+iab <gf> <esc>:set filetype=erlang<cr>:set fileencoding=utf-8<cr>i%%----------------------------------------------------<cr>%% @doc<cr>%%<cr>%% @author shealee.cc@outlook.com<cr>%% @end<cr>%%----------------------------------------------------<cr>-module().<cr>-behaviour(gen_fsm).<cr>-export(<cr>[<cr>start_link/0<cr>]<cr>).<cr>-export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).<cr><cr>-record(state, {<cr>%% 状态时间<cr>ts = 0     :: tuple()<cr>%% 状态超时时间<cr>,timeout = 0   :: non_neg_integer()<cr>}).<cr><cr>%%----------------------------------------------------<cr>%% 外部接口<cr>%%----------------------------------------------------<cr><cr>start_link()-><cr>gen_fsm:start_link(?MODULE, [], []).<cr><cr>%%----------------------------------------------------<cr>%% 状态方法<cr>%%----------------------------------------------------<cr><cr>%%----------------------------------------------------<cr>%% OTP apis<cr>%%----------------------------------------------------<cr><cr>init([])-><cr>{ok, xxxx, #state{}}.<cr><cr>handle_event(_Event, StateName, State) -><cr>{next_state, StateName, State}.<cr><cr>handle_sync_event(_Event, _From, StateName, State) -><cr>Reply = ok,<cr>{reply, Reply, StateName, State}.<cr><cr>handle_info(_Info, StateName, State) -><cr>{next_state, StateName, State}.<cr><cr>terminate(_Reason, _StateName, _State) -><cr>ok.<cr><cr>code_change(_OldVsn, StateName, State, _Extra) -><cr>{ok, StateName, State}.<cr><cr>%%----------------------------------------------------<cr>%% 内部私有<cr>%%----------------------------------------------------<cr><cr>%% 继续下一个状态<cr>continue(StateName, State = #state{timeout = infinity}) -><cr>{next_state, StateName, State, infinity};<cr>continue(StateName, State = #state{ts = Ts, timeout = Timeout}) -><cr>{next_state, StateName, State, util:time_left(Timeout, Ts)}.<cr><cr>continue(Reply, StateName, State = #state{timeout = infinity}) -><cr>{reply, Reply, StateName, State, infinity};<cr>continue(Reply, StateName, State = #state{ts = Ts, timeout = Timeout}) -><cr>{reply, Reply, StateName, State, util:time_left(Timeout, Ts)}.<cr><cr>%%----------------------------------------------------<cr>%% 测试用例<cr>%%----------------------------------------------------<cr><cr>-include_lib("eunit/include/eunit.hrl").<cr>-ifdef(TEST).<cr><cr>-endif.<esc>2GA
+" supervisor
+iab <sv> <esc>:set filetype=erlang<cr>:set fileencoding=utf-8<cr>i%%----------------------------------------------------<cr>%% @doc<cr>%%<cr>%% @author shealee.cc@outlook.com<cr>%% @end<cr>%%----------------------------------------------------<cr>-module().<cr>-behaviour(supervisor).<cr>-export(<cr>[start_link/0]<cr>).<cr>-export([init/1]).<cr>start_link()-><cr>supervisor:start_link(?MODULE, []).<cr><cr>init(_Arg)-><cr>{ok, {{one_for_one, 10, 10},<cr>[{ch, {ch, start_link, []}, permanent, 1000, worker, [ch]}]}}.<cr><esc>2GA
+" hrl
+iab <hrl> <esc>:set filetype=erlang<cr>:set fileencoding=utf-8<cr>i%%----------------------------------------------------<cr>%% @doc<cr>%%<cr>%% @author shealee.cc@outlook.com<cr>%% @end<cr>%%----------------------------------------------------<cr><esc>2GA
+
+"PHP代码缩写
+iab <php> <esc>:set filetype=php<cr>:set fileencoding=utf-8<cr>i<?php<cr>/**<cr><cr>@author Shealee<cr>/<esc>2kl
+iab ifel> if(0000){<cr>0000<cr>}else{<cr>0000<cr>}<cr>0000<esc>/0000<cr>h
+iab func> function 0000(0000){<cr>0000<cr>}<cr>0000<esc>/0000<cr>h
+
+"Flex的一些缩写定义
+iab <mx> xmlns:mx="http://www.adobe.com/2006/mxml"
+iab <xml> <?xml version="1.0" encoding="utf-8"?><esc>set fileencoding=utf8<cr>
+iab <flex>  <esc>:set filetype=xml<cr>:set fileencoding=utf-8<cr>i<?xml version="1.0" encoding="utf-8"?><cr><mx:Application xmlns="http://www.adobe.com/2006/mxml"><cr></mx:Application><esc>O
+iab <air>  <esc>:set filetype=xml<cr>:set fileencoding=utf-8<cr>i<?xml version="1.0" encoding="utf-8"?><cr><mx:WindowedApplication title="0000" width="0000" height="0000" creationComplete="0000" xmlns="http://www.adobe.com/2006/mxml"><cr></mx:WindowedApplication><esc>/0000<cr>
+iab <aircfg> <esc>:set filetype=xml<cr>:set fileencoding=utf-8<cr>i<?xml version="1.0" encoding="UTF-8"?><cr><application xmlns="http://ns.adobe.com/air/application/1.0"><cr><id>0000</id><cr><version>0000</version><cr><filename>0000</filename><cr><initialWindow><cr><content>0000.swf</content><cr><visible>true</visible><cr><systemChrome>none</systemChrome><cr><transparent>true</transparent><cr><width>0000</width><cr><height>0000</height><cr></initialWindow><cr></application><esc>/0000<cr>
+
+" c代码
+iab <c> <esc>:set filetype=c<cr>:set fileencoding=utf-8<cr>i/**<cr><cr>@author Shealee<cr>/<esc>2kl

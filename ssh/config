@@ -1,0 +1,34 @@
+Host gitlab.shiyuegame.com
+    Hostname gitlab.shiyuegame.com
+    User root
+    Port 2100
+    IdentityFile ~/.ssh/id_rsa
+    Compression yes
+
+Host remote.mjcs.dev #外网开发服
+    Hostname 123.206.183.142
+    User root
+    Port 2020
+    IdentityFile ~/.ssh/id_rsa
+    Compression yes
+
+Host mjcs.dev #内网开发服
+    Hostname 192.168.2.8
+    User root
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
+    Compression no
+
+Host mac.mjcs.dev #内网开发服 mac
+    Hostname 192.168.2.9
+    User gameshiyue
+    Port 22
+    IdentityFile ~/.ssh/id_rsa
+    Compression no
+
+Host mjcs.shiyuegame.com # 运营服务器
+    Hostname 212.64.54.60
+    User root
+    Port 2020
+    IdentityFile ~/.ssh/id_rsa
+    Compression yes
