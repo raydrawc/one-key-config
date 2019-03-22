@@ -22,11 +22,11 @@ Plug 'vim-erlang/vim-erlang-tags'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }   
 Plug 'junegunn/fzf.vim'                 " 异步模糊搜索插件  必须先装fzf插件
 " Plug 'rking/ag.vim'                     " 高速文件内容搜索，需要先安装'ag(the_silver_searcher)'命令
-" Plug 'nathanaelkane/vim-indent-guides'  " 显示缩进
+Plug 'nathanaelkane/vim-indent-guides'  " 显示缩进
 Plug 'maralla/completor.vim'            " 自动补全
 Plug 'scrooloose/nerdcommenter'         " 快速注释
 Plug 'w0rp/ale'                         " 异步语法检查
-Plug 'scrooloose/nerdtree'              " 文件管理树
+Plug 'scrooloose/nerdtree'              " 文件管理树 r 刷新
 Plug 'Xuyuanp/nerdtree-git-plugin'      " nerdtree 显示 git 最新修改标志
 Plug 'joshdick/onedark.vim'             " 配色方案 onedrak
 Plug 'ten0s/syntaxerl'                  " erlang语法检查工具
@@ -37,7 +37,7 @@ Plug 'luochen1990/rainbow'              " 括号颜色
 " Plug 'PangPangPangPangPang/vim-terminal' " 终端管理
 call plug#end()
 
-" --- 基本配置 -----------------------------------------------
+" --- [ 基本配置 ] -----------------------------------------------
 set nocompatible                    " 关闭vi兼容模式
 syntax enable                       " 语法识别
 syntax on                           " 语法高亮
@@ -53,7 +53,6 @@ set langmenu=en_US.UTF-8            " 菜单编码
 set t_Co=256                        " 强制开启256色  mintty:option->termain->type->xterm-256color
 " colorscheme desert                  " 设置配色方案
 colorscheme onedark                  " 设置配色方案
-" colorscheme quantum                  " 设置配色方案
 set showmode                        " 显示命令模式
 set showcmd                         " 显示当前操作命令
 set mouse=a                         " 支持鼠标点击
@@ -65,9 +64,9 @@ set expandtab                       " tab转换为空格
 set smarttab                        
 set softtabstop=4                   " tab转换为4个空格
 set backspace=2                     " 修复退格键失效
-set nu                              " 显示行号
+set number                          " 显示行号
 " set relativenumber
-set textwidth=80                    " 设置行宽
+" set textwidth=80                    " 设置超过行数自动换行 (添加换行符)
 set wrap                            " 设置自动折行
 "搜索
 set showmatch                       " 光标自动标亮另一个括号
@@ -75,7 +74,7 @@ set hlsearch                        " 高亮搜索结果
 set incsearch                       " 打开增量搜索
 set ignorecase                      " 搜索忽略大小写
 set smartcase                       " 自动调整大小写敏感
-" 文件相关
+" 文件相关备份
 set nobackup                        " 不创建备份文件
 set noswapfile                      " 不创建减缓文件
 set undofile                        " 保留撤销历史
@@ -83,19 +82,16 @@ set undofile                        " 保留撤销历史
 "set backupdir=~/.vim/.backup//
 "set directory=~/.vim/.swp//
 set undodir=~/.vim/.undo//          " 转移撤销文件路径
-set autochdir                       " 自动切换工作目录
 set vb t_vb=                        " 关闭声音
 set guioptions=                     " 关闭菜单栏
 set shellslash                      " 使用'/'作目录分隔符
-autocmd FileType * setlocal formatoptions-=c fo-=r fo-=o " 关闭换行自动补全注释符
 set cursorline                      " 设置当前行高亮
-highlight CursorLine  cterm=NONE guibg=NONE guifg=NONE     " 设置当前行配色
 " set autochdir                       " 设当前编辑文件为当前工作路径
 set noautochdir                       " 不随意更改工作路径 
 
 " ---- [ wild列表 ] --------------------------------------------
 set wildmenu
-set wildmode=longest:full,full      " 设置命令行模式 显示列表并快速补全
+set wildmode=longest:full,list:full      " 设置命令行模式 显示列表并快速补全
 set wildignore+=*/tmp/*,            " MacOSX/Linux
 set wildignore+=*\\tmp\\*,          " Windows
 set wildignore+=.hg,.git.,svn        " 版本控制
@@ -103,16 +99,53 @@ set wildignore+=*.so,*.swp,*.zip,*.beam,*.meta,*.dll,*.dll.mdb,*.exe,*.pyc
 set wildignore+=*.png,*.bmp,*.jpg,*.jpeg,*.FBX,*.tga
 set wildignore+=*.unity3d,*.prefab,*.unity,*.asset,*.mat,*.meta
 
-" --- 非插件快捷键配置 ---------------------------------------------------
+" ---- [ autocmd ] --------------------------------------------
+if has("autocmd")                                                          
+    " 记录上次修改文件的位置
+    au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif                                                        
+    " 关闭换行自动补全注释符
+    autocmd FileType * setlocal formatoptions-=c fo-=r fo-=o 
+    " 设置loclist 和 quickfix在跨越底部栏显示
+    autocmd FileType qf wincmd J        
+    " 当NerdTree 为剩下唯一窗口是自动关闭
+    autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
+endif 
+
+" ---- [ highligh表 修改配色] -----------------------------------------------------
+
+" erlang 语法颜色配置  (部分绘色分离不清可用)
+hi link erlangGlobalFuncCall Function
+hi link erlangGlobalFuncRef Function
+hi link erlangLocalFuncCall Function
+hi link erlangLocalFuncRef Function
+
+hi Keyword term=bold ctermfg=170 guifg=#c678DD
+hi Function ctermfg=33
+hi link erlangInclude Macro
+hi link erlangDefine Macro
+hi link erlangOperator Normal
+hi link erlangRightArrow Normal
+hi erlangMacro ctermfg=darkBlue
+hi link erlangCommentAnnotation Comment
+hi link erlangStringModifier Normal
+hi erlangVariable ctermfg=darkRed
+" hi erlangVariable 
+
+
+" hi erlangDefine ctermfg=darkblue
+" let g:onedark_termcolors=256
+
+" --- [ 非插件快捷键配置 ] ---------------------------------------------------
 " 重置leader键
 let mapleader =  "\<space>"
 let g:mapleader = "\<space>"
 
 map <leader>= <esc>gg=G<cr>        " 快速格式化代码
-nnoremap <leader># :<C-u>let @/ = expand('<cword>')<cr>nN  " 高亮当前单词
+nnoremap <leader># :<C-u>let @/=expand('<cword>')<cr>:set hlsearch<cr>  " 高亮当前单词
 
-" 快速切换工作区
+" 快速切换工作区 workbrench
 map <Leader>w1 :cd /data/xxwy.dev/server<CR>
+map <Leader>w2 :cd /data/xxwy.dev/tools<CR>
 
 " 快速导航
 " imap <m-k> <Up> " Alt + K 插入模式下光标向上移动 
@@ -130,10 +163,14 @@ noremap <leader>bn :bn<cr>
 noremap <leader>bp :bp<cr>
 
 " 调整窗口
-nmap <M-k> :resize -3<CR>
-nmap <M-j> :resize +3<CR>
-nmap <M-h> :vertical resize +3<CR>
-nmap <M-l> :vertical resize -3<CR>
+" nmap <M-k> :resize -3<CR>
+" nmap <M-j> :resize +3<CR>
+" nmap <M-h> :vertical resize +3<CR>
+" nmap <M-l> :vertical resize -3<CR>
+nmap <leader>wk :resize -3<CR>
+nmap <leader>wj :resize +3<CR>
+nmap <leader>wl :vertical resize +3<CR>
+nmap <leader>wh :vertical resize -3<CR>
 
 " tab
 " map <c-tab> :tabnext<cr>        " gt
@@ -159,8 +196,6 @@ func! GetSelectedText()
     return result
 endfunc
 
-
-autocmd FileType qf wincmd J        " 设置loclist 和 quickfix在跨越底部栏显示
 " loclist
 map <leader>lo :lopen<cr>
 map <leader>lw :lopen<cr>
@@ -183,12 +218,12 @@ nnoremap <leader>ev  :split $MYVIMRC<cr>
 " 运行当前vimrc脚本
 nnoremap <leader>sv  :source $MYVIMRC<cr>
 
-" 插件: vim-indent-guides --------------------------------------
+" ---- [ 插件: vim-indent-guides ] --------------------------------------
 let g:indent_guides_enable_on_vim_startup = 1
 let g:indent_guides_start_level=2
 let g:indent_guides_guide_size=1
 
-" 插件 scrooloose/nerdcommenter --------------------------------
+" ---- [ 插件 scrooloose/nerdcommenter ] --------------------------------
 " <leader>cc   加注释
 " <leader>cu   解开注释
 " <leader>ca 切换注释的样式:/*....*/和//..的切换
@@ -210,8 +245,6 @@ nmap <C-t> :NERDTreeToggle<CR>
 imap <F1> <esc>:NERDTreeToggle<CR> 
 imap <C-t> <esc>:NERDTreeToggle<CR>
 
-" 当NerdTree 为剩下唯一窗口是自动关闭
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 " let NERDTreeShowHidden=1            " 设置显示隐藏文件
 let NERDTreeIgnore=[
 \ '\.(swp|svn|pyc)$' 
@@ -220,13 +253,13 @@ let NERDTreeIgnore=[
 \ , '\.(beam)'
 \ ]
 
-" 插件 junegunn/fzf ---------------------------------------
-noremap <leader>f :FZF                  " 启动搜索补全
+" ---- [ 插件 junegunn/fzf ] ---------------------------------------
+noremap <leader>f :FZF                  
 noremap <leader>ff :FZF<CR>             " 搜索当前目录下所有文件
 noremap <leader>fb :Buffers<CR>         " 搜索buffs
 noremap <leader>fl :BLines<CR>          " 当前buff搜索内容
 
-" 插件 w0rp/ale -------------------------------------
+" ---- [ 插件 w0rp/ale ] -------------------------------------
 "显示Linter名称,出错或警告等相关信息
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
@@ -240,7 +273,7 @@ let g:ale_linters = {
 \   'erlang': ['syntaxerl'],
 \}
 
-" 插件 airline -----------------------------------------
+" ---- [插件 airline ] -----------------------------------------
 let g:airline_theme='onedark'
 let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
@@ -259,9 +292,9 @@ let g:airline_symbols.readonly = ''
 "let g:airline_symbols.linenr = ''
 let g:airline_symbols.linenr = ''
 let g:airline_symbols.maxlinenr = '' 
-" 插件 completor ------------------------------------
+" ---- [ 插件 completor ] ------------------------------------
 let g:completor_erlang_omni_trigger = '[\w-]+:$'
 let g:completor_complete_options = 'menuone,noselect'
 
-" ---- [ luochen1990/rainbow]
+" ---- [ luochen1990/rainbow] --------------------------------
 let g:rainbow_active=1
