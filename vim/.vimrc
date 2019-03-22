@@ -22,7 +22,8 @@ Plug 'vim-erlang/vim-erlang-tags'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }   
 Plug 'junegunn/fzf.vim'                 " 异步模糊搜索插件  必须先装fzf插件
 " Plug 'rking/ag.vim'                     " 高速文件内容搜索，需要先安装'ag(the_silver_searcher)'命令
-Plug 'nathanaelkane/vim-indent-guides'  " 显示缩进
+" Plug 'nathanaelkane/vim-indent-guides'  " 显示缩进
+Plug 'Yggdroot/indentLine'              " 显示缩进 “线”
 Plug 'maralla/completor.vim'            " 自动补全
 Plug 'scrooloose/nerdcommenter'         " 快速注释
 Plug 'w0rp/ale'                         " 异步语法检查
@@ -34,6 +35,7 @@ Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets' " 代码片段
 Plug 'airblade/vim-gitgutter'           " 显示git差异  [c ]c 跳转 差异位置
 Plug 'tpope/vim-fugitive'               " vim 操作 git 并显示分支
 Plug 'luochen1990/rainbow'              " 括号颜色
+Plug 'Raimondi/delimitMate'             " 自动补全括号等
 " Plug 'PangPangPangPangPang/vim-terminal' " 终端管理
 call plug#end()
 
@@ -118,17 +120,18 @@ hi link erlangGlobalFuncCall Function
 hi link erlangGlobalFuncRef Function
 hi link erlangLocalFuncCall Function
 hi link erlangLocalFuncRef Function
-
-hi Keyword term=bold ctermfg=170 guifg=#c678DD
-hi Function ctermfg=33
 hi link erlangInclude Macro
 hi link erlangDefine Macro
 hi link erlangOperator Normal
 hi link erlangRightArrow Normal
-hi erlangMacro ctermfg=darkBlue
 hi link erlangCommentAnnotation Comment
 hi link erlangStringModifier Normal
+
+hi Keyword term=bold ctermfg=170 guifg=#c678DD
+hi Function ctermfg=33
+hi erlangMacro ctermfg=darkBlue
 hi erlangVariable ctermfg=darkRed
+hi erlangAtom ctermfg=darkcyan
 " hi erlangVariable 
 
 
@@ -167,10 +170,10 @@ noremap <leader>bp :bp<cr>
 " nmap <M-j> :resize +3<CR>
 " nmap <M-h> :vertical resize +3<CR>
 " nmap <M-l> :vertical resize -3<CR>
-nmap <leader>wk :resize -3<CR>
-nmap <leader>wj :resize +3<CR>
-nmap <leader>wl :vertical resize +3<CR>
-nmap <leader>wh :vertical resize -3<CR>
+nmap <leader>wk <esc>:resize -3<CR>
+nmap <leader>wj <esc>:resize +3<CR>
+nmap <leader>wl <esc>:vertical resize +3<CR>
+nmap <leader>wh <esc>:vertical resize -3<CR>
 
 " tab
 " map <c-tab> :tabnext<cr>        " gt
@@ -258,13 +261,14 @@ noremap <leader>f :FZF
 noremap <leader>ff :FZF<CR>             " 搜索当前目录下所有文件
 noremap <leader>fb :Buffers<CR>         " 搜索buffs
 noremap <leader>fl :BLines<CR>          " 当前buff搜索内容
+noremap <leader>fa :Ag<CR>              " 使用ag 全局搜索文件
 
 " ---- [ 插件 w0rp/ale ] -------------------------------------
 "显示Linter名称,出错或警告等相关信息
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
-let g:ale_lint_delay=500                " 延时编译
-let g:ale_maximun_file_size=1048576     " 设置检查文件最大
+let g:ale_lint_delay=3000                " 延时编译
+" let g:ale_maximun_file_size=1048576     " 设置检查文件最大
 let g:ale_lint_on_enter=0               " 打开文件不制动编译
 " let g:ale_sign_column_always=1
 " let g:ale_open_list=1 
