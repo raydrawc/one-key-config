@@ -23,7 +23,7 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'                 " 异步模糊搜索插件  必须先装fzf插件
 " Plug 'rking/ag.vim'                     " 高速文件内容搜索，需要先安装'ag(the_silver_searcher)'命令
 " Plug 'nathanaelkane/vim-indent-guides'  " 显示缩进
-Plug 'Yggdroot/indentLine'              " 显示缩进 “线”
+Plug 'Yggdroot/indentLine'              " 显示缩进 “线” 
 Plug 'maralla/completor.vim'            " 自动补全
 Plug 'scrooloose/nerdcommenter'         " 快速注释
 Plug 'w0rp/ale'                         " 异步语法检查
@@ -31,11 +31,15 @@ Plug 'scrooloose/nerdtree'              " 文件管理树 r 刷新
 Plug 'Xuyuanp/nerdtree-git-plugin'      " nerdtree 显示 git 最新修改标志
 Plug 'joshdick/onedark.vim'             " 配色方案 onedrak
 Plug 'ten0s/syntaxerl'                  " erlang语法检查工具
-Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets' " 代码片段
-Plug 'airblade/vim-gitgutter'           " 显示git差异  [c ]c 跳转 差异位置
+Plug 'SirVer/ultisnips'                 " 代码片段主函数
+Plug 'honza/vim-snippets'               " 代码片段集合
+" Plug 'airblade/vim-gitgutter'           " 显示git差异  [c ]c 跳转 差异位置
+Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-fugitive'               " vim 操作 git 并显示分支
 Plug 'luochen1990/rainbow'              " 括号颜色
 Plug 'Raimondi/delimitMate'             " 自动补全括号等
+" Plug 'sheerun/vim-polyglot'             " 语法高亮/缩进语言包集合
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' } " GO语言辅助包
 " Plug 'PangPangPangPangPang/vim-terminal' " 终端管理
 call plug#end()
 
@@ -127,12 +131,12 @@ hi link erlangRightArrow Normal
 hi link erlangCommentAnnotation Comment
 hi link erlangStringModifier Normal
 
+" hi Keyword ctermfg=170
 hi Keyword term=bold ctermfg=170 guifg=#c678DD
 hi Function ctermfg=33
-hi erlangMacro ctermfg=darkBlue
-hi erlangVariable ctermfg=darkRed
-hi erlangAtom ctermfg=darkcyan
-" hi erlangVariable 
+hi erlangMacro ctermfg=Blue
+hi erlangVariable ctermfg=Red guifg=#c678DD term=bold
+hi erlangAtom ctermfg=cyan guifg=#c678DD term=bold
 
 
 " hi erlangDefine ctermfg=darkblue
@@ -151,12 +155,10 @@ map <Leader>w1 :cd /data/xxwy.dev/server<CR>
 map <Leader>w2 :cd /data/xxwy.dev/tools<CR>
 
 " 快速导航
-" imap <m-k> <Up> " Alt + K 插入模式下光标向上移动 
-" imap <m-j> <Down> " Alt + J 插入模式下光标向下移动
-" imap <m-h> <Left> " Alt + H 插入模式下光标向左移动
-" imap <m-l> <Right> " Alt + L 插入模式下光标向右移动
-noremap <C-a> ^         " 快速定位 行头
-noremap <C-e> $         " 快速定位 行尾
+" imap <m-k> <Up>           " Alt + K 插入模式下光标向上移动 
+" imap <m-j> <Down>         " Alt + J 插入模式下光标向下移动
+" imap <m-h> <Left>         " Alt + H 插入模式下光标向左移动
+" imap <m-l> <Right>        " Alt + L 插入模式下光标向右移动
 imap <C-a> <esc>I
 imap <C-e> <esc>A
 
@@ -178,8 +180,9 @@ nmap <leader>wh <esc>:vertical resize -3<CR>
 " tab
 " map <c-tab> :tabnext<cr>        " gt
 " map <c-s-tab> :tabprevious<cr>  " gT
-map <leader>tn :tabnew<cr>
+map <leader>tn :tabnew ./<cr>
 map <leader>tc :tabclose<cr>
+map <leader>te :tabe<cr>
 
 " 改写 alt 键为双leader键  wsl不识别alt键
 " for i in range(97,122)
@@ -201,6 +204,7 @@ endfunc
 
 " loclist
 map <leader>lo :lopen<cr>
+map <leader>ll :lopen<cr>
 map <leader>lw :lopen<cr>
 " map <leader>lw :lwindow<cr>       " 不会自动force到loclist
 map <leader>lc :lclose<cr>
@@ -208,6 +212,7 @@ map <leader>ln :lnext<cr>
 map <leader>lp :lprevious<cr>
 
 " quickfix 
+map <leader>qq :copen<cr>
 map <leader>qo :copen<cr>
 map <leader>qw :copen<cr>           
 " map <leader>qw :cwindow<cr>       " 不会自动 force 到quickfix
@@ -257,17 +262,24 @@ let NERDTreeIgnore=[
 \ ]
 
 " ---- [ 插件 junegunn/fzf ] ---------------------------------------
+let g:fzf_layout = {'down': '~20%'}
 noremap <leader>f :FZF                  
 noremap <leader>ff :FZF<CR>             " 搜索当前目录下所有文件
 noremap <leader>fb :Buffers<CR>         " 搜索buffs
 noremap <leader>fl :BLines<CR>          " 当前buff搜索内容
-noremap <leader>fa :Ag<CR>              " 使用ag 全局搜索文件
+" 快速启动Ag rg搜索
+noremap <leader>fa :Ag  
+noremap <leader>fr :Rg  
+
+" 快速搜索工作区
+noremap <leader>f1 :FZF /data/xxwy.dev/server<cr>
+noremap <leader>f2 :FZF /data/xxwy.dev/tools<cr>
 
 " ---- [ 插件 w0rp/ale ] -------------------------------------
 "显示Linter名称,出错或警告等相关信息
 let g:ale_echo_msg_error_str = 'E'
 let g:ale_echo_msg_warning_str = 'W'
-let g:ale_lint_delay=3000                " 延时编译
+let g:ale_lint_delay=1000                " 延时编译
 " let g:ale_maximun_file_size=1048576     " 设置检查文件最大
 let g:ale_lint_on_enter=0               " 打开文件不制动编译
 " let g:ale_sign_column_always=1
@@ -302,3 +314,10 @@ let g:completor_complete_options = 'menuone,noselect'
 
 " ---- [ luochen1990/rainbow] --------------------------------
 let g:rainbow_active=1
+
+" ---- [ mhinz/vim-signify ] --------------------------------
+let g:signify_update_on_bufenter    = 0     " 缓冲区被修改时更新符号
+let g:signify_update_on_focusgained = 1     " vim获取焦点时更新符号
+nnoremap <leader>gr :SignifyRefresh<CR>
+nmap <leader>gj <plug>(signify-next-hunk)
+nmap <leader>gk <plug>(signify-prev-hunk)
