@@ -32,7 +32,7 @@ Plug 'Xuyuanp/nerdtree-git-plugin'      " nerdtree 显示 git 最新修改标志
 Plug 'joshdick/onedark.vim'             " 配色方案 onedrak
 Plug 'ten0s/syntaxerl'                  " erlang语法检查工具
 Plug 'SirVer/ultisnips'                 " 代码片段主函数
-Plug 'honza/vim-snippets'               " 代码片段集合
+" Plug 'honza/vim-snippets'               " 代码片段集合
 " Plug 'airblade/vim-gitgutter'           " 显示git差异  [c ]c 跳转 差异位置
 Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-fugitive'               " vim 操作 git 并显示分支
@@ -200,6 +200,12 @@ func! GetSelectedText()
     normal gv"xy
     let result = getreg("x")
     return result
+endfunc
+
+fun Filename()
+    let filename = expand('%:t:r')
+    if filename == '' | return a:0 == 2 ? a:2 : '' | endif
+    return !a:0 || a:1 == '' ? filename : substitute(a:1, '$1', filename, 'g')
 endfunc
 
 " loclist

@@ -1,45 +1,122 @@
-# 分割线
+#######
+## 目录(本文件使用的首识别字符为>)
+# >--  分割线
+# >author 作者名 使用shell环境变量 author  exprot author="xxx@mail.com"
+# >erl  gen_erl 初始化
+# >fsm  gen_fsm 初始化
+# >t    utf8 中文字符串
+#####
+
+## 分割线
 snippet >-- "分割线" b
 %% ----------------------------------------------------
 %% $1
 %% ----------------------------------------------------
 endsnippet
 
-# author
-snippet >author
-%% -----------------------------------
-%% $1
-%% @author raydraw@gmail.com
-%% -----------------------------------
+## author
+snippet >author 
+%% ----------------------------------------------------
+%% ${1:undefine module}
+%% @author `echo $author`
+%% @end
+%% ----------------------------------------------------
 endsnippet
 
-# gen_erl
-snippet >erl
--module(`vim_snippets#Filename()`).
+## gen_erl
+snippet >erl "erlang文件初始化"
+-module(`!v Filename()`).
 -export([  
-	    init/0
-    ]).
+		init/0
+	]).
 
-%% 空行后紧接的是包含的头文件
 -include("common.hrl"). 
 -include("role.hrl").
 
 %%----------------------------------------------------
 %% 外部接口 
 %%----------------------------------------------------
+%% @doc
+$1
+
+%%----------------------------------------------------
+%% 内部私有 
+%%----------------------------------------------------
+
+%%----------------------------------------------------
+%% 测试用例 
+%%----------------------------------------------------
+-include_lib("eunit/include/eunit.hrl").
+-ifdef(TEST).
+
+-endif.
+endsnippet
+
+## gen_srv
+snippet >srv "gen_server"
+-module(`!v Filename()`).
+-behaviour(gen_server).
+-export([
+    start_link/0
+]).
+-export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]). 
+
+-include("common.hrl"). 
+
+-define(`!v Filename()`_ver, 1).
+
+-record(state, {
+    ver = ?`!v Filename`_ver
+    ,val = 0
+}).
+
+%%----------------------------------------------------
+%% 外部接口 
+%%----------------------------------------------------
 %% @doc 初始化
-init() ->
+start_link() ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+%%----------------------------------------------------
+%% OTP API
+%%----------------------------------------------------
+
+init([]) ->
     do_init().
 
-%%----------------------------------------------------
-%% 内部私有 --- （私有函数分割线）
-%%----------------------------------------------------
-%% 私有函数注释不要以@doc开始
-do_init() ->
-    {ok, SpecErl}.
+handle_call(hello, _From, State) ->
+    {reply, hello, State}.
+
+handle_call(_Request, _From, State) ->
+    ?DEBUG("无效请求 ~w", [_Request]), --- 未知消息一律要做容错并且打印出来
+    {reply, false, State}. %% --- handle_call的容错返回必须是{reply, false, State} 以免caller方timeout或者判断错误
+
+handle_cast(_Msg, State) ->
+    ?DEBUG("无效请求 ~w", [_Msg]), %% --- 未知消息一律要做容错并且打印出来
+    {noreply, State}.
+
+handle_info(_Info, State) ->
+    ?DEBUG("无效消息 ~w", [_Info]), %% --- 未知消息一律要做容错并且打印出来
+    {noreply, State}.
+
+terminate(_Reason, _State) ->
+    ok.
+
+code_change(_OldVsn, State, _Extra) ->
+    {ok, State}.
 
 %%----------------------------------------------------
-%% 测试用例 -- （测试用例分割线)
+%% 内部私有 
+%%----------------------------------------------------
+%% 初始化函数
+do_init() ->
+    ?INFO("开始启动..."),
+    State = #state{},
+    ?INFO("启动完成"), 
+    {ok, State}.
+
+%%----------------------------------------------------
+%% 测试用例 
 %%----------------------------------------------------
 -include_lib("eunit/include/eunit.hrl").
 -ifdef(TEST).
@@ -48,15 +125,120 @@ test_init() ->
     do_init().
 
 -endif.
+
 endsnippet
 
-# hrl
-snippet >hrl
--define(${1:`vim_snippets#Filename()`}, 1).
+## gen_fsm
+snippet >gen_fsm "状态机初始化"
+-module(`!v Filename()`).
+-behaviour(gen_fsm).
+-export([
+   start_link/1 
+]).
+-export([
+    idle/2
+    ,active/2
+]).
+-export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4]).
 
--record
+-include("common.hrl").
+
+-define(`!v Filename()`_ver, 1).
+
+-record(state, {
+    ver = ?`!v Filename`_ver
+    ,val = 0
+    ,timeout = 0
+    ,ts = {0, 0, 0}
+}).
+
+%%----------------------------------------------------
+%% 外部接口 
+%%----------------------------------------------------
+%% @doc 启动函数
+start_link([]) ->
+    gen_fsm:start_link({local, ?MODULE}, ?MODULE, [], []).
+
+%%----------------------------------------------------
+%% 活动状态 
+%%----------------------------------------------------
+idle(timeout, State = #state{}) ->
+    State1 = State#state{},
+    continue(active, State).
+idle(_, State) -> 
+    continue(idle, State).
+
+active(timeout, State = #state{}) ->
+    State1 = State#state{},
+    continue(idle, State).
+active(_, State) -> 
+    continue(active, State).
+
+%%----------------------------------------------------
+%% OTP API
+%%----------------------------------------------------
+%% 初始化
+init([])->
+    do_init().
+
+handle_event(_Event, StateName, State) ->
+    ?DEBUG("无效事件 ~w", [_Event]),
+    continue(StateName, State).
+
+handle_sync_event(_Event, _From, StateName, State) ->
+    ?DEBUG("无效请求 ~w", [_Event]),
+    Reply = false, %% --- handle_sync_event的容错返回必须是false,  以免caller方timeout或者判断错误
+    continue(Reply, StateName, State). %% --- 状态机的OTP接口返回值一律由continue函数来接管（注意contine有提供带reply版本）
+
+handle_info(_Info, StateName, State) ->
+    ?DEBUG("无效消息 ~w", [_Info]), 
+    continue(StateName, State). 
+
+terminate(_Reason, _StateName, _State) ->
+    ok.
+
+code_change(_OldVsn, StateName, State, _Extra) ->
+    {ok, StateName, State}.
+
+%%----------------------------------------------------
+%% 内部私有 
+%%----------------------------------------------------
+%% 初始化函数
+do_init() ->
+    ?INFO("开始启动..."),
+    Timeout = 300000,
+    State = #state{
+        ts = erlang:now()
+        ,timeout = Timeout
+    },
+    ?INFO("启动完成~w ~w", [StateName, Timeout]), %% --- 状态机的启动完成信息里面最好要带上当前的StateName和timeout
+    {ok, idle, State, Timeout}.
+
+%% 继续下一个状态（带倒计时的状态机统一定义这个时间校准函数）
+continue(StateName, State = #state{timeout = infinity}) ->
+    {next_state, StateName, State, infinity};
+continue(StateName, State = #state{ts = Ts, timeout = Timeout}) ->
+    {next_state, StateName, State, util:time_left(Timeout, Ts)}.
+
+continue(Reply, StateName, State = #state{timeout = infinity}) ->
+    {reply, Reply, StateName, State, infinity};
+continue(Reply, StateName, State = #state{ts = Ts, timeout = Timeout}) ->
+    {reply, Reply, StateName, State, util:time_left(Timeout, Ts)}.
+
+%%----------------------------------------------------
+%% 测试用例 -- （测试用例分割线)
+%%----------------------------------------------------
+-include_lib("eunit/include/eunit.hrl").
+-ifdef(TEST). %% --- 测试用例统一用包含eunit来做单元测试，并嵌入到-ifdef(TEST).内.
+%% 测试内接口
+test_init() ->
+    do_init().
+
+-endif.
+
 endsnippet
 
-# gen_srv
-# snippet >srv
-
+## utf-8字符串
+snippet >t "utf-8 bitstring"
+<<"$1"/utf8>>
+endsnippet
