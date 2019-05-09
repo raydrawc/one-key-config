@@ -1,11 +1,17 @@
-#######
-## 目录(本文件使用的首识别字符为>)
+####### ~/.vimrc/UltiSnips/erlang.snippets
+## 目录(本文件使用的首识别字符为 > )
 # >--  分割线
 # >author 作者名 使用shell环境变量 author  exprot author="xxx@mail.com"
 # >erl  gen_erl 初始化
 # >fsm  gen_fsm 初始化
 # >t    utf8 中文字符串
 #####
+### vimfunc 辅助函数 放在.vimrc
+# fun Filename()
+#     let filename = expand('%:t:r')
+#     if filename == '' | return a:0 == 2 ? a:2 : '' | endif
+#     return !a:0 || a:1 == '' ? filename : substitute(a:1, '$1', filename, 'g')
+# endfunc
 
 ## 分割线
 snippet >-- "分割线" b
@@ -66,7 +72,7 @@ snippet >srv "gen_server"
 -define(`!v Filename()`_ver, 1).
 
 -record(state, {
-    ver = ?`!v Filename`_ver
+    ver = ?`!v Filename()`_ver
     ,val = 0
 }).
 
@@ -76,7 +82,7 @@ snippet >srv "gen_server"
 %% @doc 初始化
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-
+$1
 %%----------------------------------------------------
 %% OTP API
 %%----------------------------------------------------
@@ -146,7 +152,7 @@ snippet >gen_fsm "状态机初始化"
 -define(`!v Filename()`_ver, 1).
 
 -record(state, {
-    ver = ?`!v Filename`_ver
+    ver = ?`!v Filename()`_ver
     ,val = 0
     ,timeout = 0
     ,ts = {0, 0, 0}
@@ -158,7 +164,7 @@ snippet >gen_fsm "状态机初始化"
 %% @doc 启动函数
 start_link([]) ->
     gen_fsm:start_link({local, ?MODULE}, ?MODULE, [], []).
-
+$1
 %%----------------------------------------------------
 %% 活动状态 
 %%----------------------------------------------------
@@ -226,10 +232,10 @@ continue(Reply, StateName, State = #state{ts = Ts, timeout = Timeout}) ->
     {reply, Reply, StateName, State, util:time_left(Timeout, Ts)}.
 
 %%----------------------------------------------------
-%% 测试用例 -- （测试用例分割线)
+%% 测试用例 
 %%----------------------------------------------------
 -include_lib("eunit/include/eunit.hrl").
--ifdef(TEST). %% --- 测试用例统一用包含eunit来做单元测试，并嵌入到-ifdef(TEST).内.
+-ifdef(TEST).
 %% 测试内接口
 test_init() ->
     do_init().
