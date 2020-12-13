@@ -18,7 +18,7 @@ Plug 'vim-airline/vim-airline-themes'   " 导航栏主题
 " Plug 'vim-erlang/vim-erlang-compiler' " erlang 同步语法检查工具（保存触发
 Plug 'vim-erlang/vim-erlang-omnicomplete' " 语法提示 
 Plug 'vim-erlang/vim-erlang-tags'          
-" Plug 'easymotion/vim-easymotion'        " 快速跳转工具
+Plug 'easymotion/vim-easymotion'        " 快速跳转工具
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }   
 Plug 'junegunn/fzf.vim'                 " 异步模糊搜索插件  必须先装fzf插件
 " Plug 'rking/ag.vim'                     " 高速文件内容搜索，需要先安装'ag(the_silver_searcher)'命令
@@ -41,6 +41,12 @@ Plug 'Raimondi/delimitMate'             " 自动补全括号等
 " Plug 'sheerun/vim-polyglot'             " 语法高亮/缩进语言包集合
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' } " GO语言辅助包
 " Plug 'PangPangPangPangPang/vim-terminal' " 终端管理
+Plug 'mhinz/vim-startify'               " 初始化界面
+
+Plug 'iamcco/mathjax-support-for-mkdp',{'for': 'markdown'}
+Plug 'iamcco/markdown-preview.vim', {'for': 'markdown'}
+" Plug 'suan/vim-instant-markdown', {'for': 'markdown'}
+
 call plug#end()
 
 " --- [ 基本配置 ] -----------------------------------------------
@@ -151,8 +157,7 @@ map <leader>= <esc>gg=G<cr>        " 快速格式化代码
 nnoremap <leader># :<C-u>let @/=expand('<cword>')<cr>:set hlsearch<cr>  " 高亮当前单词
 
 " 快速切换工作区 workbrench
-map <Leader>w1 :cd /data/xxwy.dev/server<CR>
-map <Leader>w2 :cd /data/xxwy.dev/tools<CR>
+map <Leader>w1 :cd /data/3dsn/server/trunk<CR>
 
 " 快速导航
 " imap <m-k> <Up>           " Alt + K 插入模式下光标向上移动 
@@ -280,6 +285,7 @@ noremap <leader>fr :Rg
 " 快速搜索工作区
 noremap <leader>f1 :FZF /data/xxwy.dev/server<cr>
 noremap <leader>f2 :FZF /data/xxwy.dev/tools<cr>
+noremap <leader>f3 :FZF /data/xxwy.dev/data<cr>
 
 " ---- [ 插件 w0rp/ale ] -------------------------------------
 "显示Linter名称,出错或警告等相关信息
@@ -327,3 +333,11 @@ let g:signify_update_on_focusgained = 1     " vim获取焦点时更新符号
 nnoremap <leader>gr :SignifyRefresh<CR>
 nmap <leader>gj <plug>(signify-next-hunk)
 nmap <leader>gk <plug>(signify-prev-hunk)
+
+" ---- [ easymotion/vim-easymotion ] --------------------------------
+map <Leader><leader>h <Plug>(easymotion-linebackward)
+map <Leader><leader>l <Plug>(easymotion-lineforward)
+
+
+" ---- [ markdown-preview ] --------------------------------
+" let g:mkdp_path_to_chrome = "/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe"

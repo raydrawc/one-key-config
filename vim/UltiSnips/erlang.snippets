@@ -62,6 +62,7 @@ endsnippet
 snippet >srv "gen_server"
 -module(`!v Filename()`).
 -behaviour(gen_server).
+
 -export([
     start_link/0
 ]).
@@ -90,19 +91,16 @@ $1
 init([]) ->
     do_init().
 
-handle_call(hello, _From, State) ->
-    {reply, hello, State}.
-
 handle_call(_Request, _From, State) ->
-    ?DEBUG("无效请求 ~w", [_Request]), --- 未知消息一律要做容错并且打印出来
-    {reply, false, State}. %% --- handle_call的容错返回必须是{reply, false, State} 以免caller方timeout或者判断错误
+    ?DEBUG("无效请求 ~w", [_Request]), 
+    {reply, false, State}. 
 
 handle_cast(_Msg, State) ->
-    ?DEBUG("无效请求 ~w", [_Msg]), %% --- 未知消息一律要做容错并且打印出来
+    ?DEBUG("无效请求 ~w", [_Msg]),
     {noreply, State}.
 
 handle_info(_Info, State) ->
-    ?DEBUG("无效消息 ~w", [_Info]), %% --- 未知消息一律要做容错并且打印出来
+    ?DEBUG("无效消息 ~w", [_Info]), 
     {noreply, State}.
 
 terminate(_Reason, _State) ->
@@ -170,13 +168,13 @@ $1
 %%----------------------------------------------------
 idle(timeout, State = #state{}) ->
     State1 = State#state{},
-    continue(active, State).
+    continue(active, State);
 idle(_, State) -> 
     continue(idle, State).
 
 active(timeout, State = #state{}) ->
     State1 = State#state{},
-    continue(idle, State).
+    continue(idle, State);
 active(_, State) -> 
     continue(active, State).
 
@@ -193,8 +191,8 @@ handle_event(_Event, StateName, State) ->
 
 handle_sync_event(_Event, _From, StateName, State) ->
     ?DEBUG("无效请求 ~w", [_Event]),
-    Reply = false, %% --- handle_sync_event的容错返回必须是false,  以免caller方timeout或者判断错误
-    continue(Reply, StateName, State). %% --- 状态机的OTP接口返回值一律由continue函数来接管（注意contine有提供带reply版本）
+    Reply = false, 
+    continue(Reply, StateName, State). 
 
 handle_info(_Info, StateName, State) ->
     ?DEBUG("无效消息 ~w", [_Info]), 
@@ -217,7 +215,7 @@ do_init() ->
         ts = erlang:now()
         ,timeout = Timeout
     },
-    ?INFO("启动完成~w ~w", [StateName, Timeout]), %% --- 状态机的启动完成信息里面最好要带上当前的StateName和timeout
+    ?INFO("启动完成~w ~w", [StateName, Timeout]), 
     {ok, idle, State, Timeout}.
 
 %% 继续下一个状态（带倒计时的状态机统一定义这个时间校准函数）
@@ -247,4 +245,24 @@ endsnippet
 ## utf-8字符串
 snippet >t "utf-8 bitstring"
 <<"$1"/utf8>>
+endsnippet
+
+## 常用函数
+snippet >do_fun "常用函数" b
+$1([], Role, _Args) ->
+    {ok, Role};
+$1([Label | _T], _Role = #role{id = Id, name = Name}, Args) ->
+    ?ERR("未知标签 label:~w id:~w name:~ts args:~w", [Label, Id, Name, Args]),
+    {false, ?T("系统错误, 请联系客服")}.
+endsnippet
+
+snippet >case "case"
+    case $1 of
+        {ok, N$1} ->
+            {ok, N$1};
+        {false, Reason} ->
+            {false, Reason};
+        _ ->
+            {false, ?T("函数错误，请稍后再试")}
+    end.
 endsnippet
