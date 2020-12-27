@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 # ----------------------------------
 # 工具包主体 tools main
 # @author raydraw@gmail.com
@@ -12,7 +12,8 @@ get_real_path(){
         source="$( readlink "$source" )"
         [[ $source != /* ]] && source="$dir/$source"
     done
-    echo "$( cd -P "$( dirname "$source" )/.." && pwd )"
+#    echo "$( cd -P "$( dirname "$source" )/.." && pwd )"
+    echo "$( cd -P "$( dirname "$source" )" && pwd )"
 }
 
 # 调用函数
@@ -22,24 +23,35 @@ _CALL_FUNCTION(){
         fname="${fname}_${arg}"
         shift
         if is_fun_exists ${fname}; then
-            if [ "$LOGFILE" = "" ]; then
-                ${fname} $@
-            else
-                echo "------------------------------------------------" | tee -a $LOGFILE
-                echo "$(date +"%F %T") 执行操作：${arg} $@" | tee -a $LOGFILE
-                echo "------------------------------------------------" | tee -a $LOGFILE
-                ${fname} $@ | tee -a $LOGFILE
-            fi
+            ${fname} $@
             exit 0
         fi
     done
     ERR "无效的指令，请使用以下指令"
-    for k in ${!DOC[@]}; do
-        >&2 echo -e -n "\e[95m${k}\e[0;0m"
-        eval "printf ' %.0s' {1..$((26 - ${#k}))}"
-        >&2 echo -e "${DOC[$k]}"
+    while [ ${#DOC[@]} -ne 0 ]; do
+        mink=''
+        for k in ${!DOC[@]}; do
+            if [ "$mink" = "" ] || [[ "$mink" > "$k" ]]; then
+                mink=$k
+            fi
+        done
+        >&2 echo -e -n "\e[95m${mink}\e[0;0m"
+        eval "printf ' %.0s' {1..$((26 - ${#mink}))}"
+        >&2 echo -e "${DOC[$mink]}"
+        unset DOC[$mink]
     done
 }
+
+# 输出一条普通信息
+INFO(){
+    echo -e "\e[92m=>\e[0;0m ${1}"
+}
+
+# 输出一条错误信息
+ERR(){
+    >&2 echo -e "\e[91m>>\e[0;0m ${1}"
+}
+
 
 # 输出命令行补全信息
 fun_completion(){
@@ -54,7 +66,7 @@ HOME=~
 declare -A DOC
 
 # 额外载入工具脚本
-scripts=( )
+scripts=( "ssh/ssh.sh" )
 for f in ${scripts[@]}; do
     if [ ! -f ${ROOT}/${f} ]; then
         continue
