@@ -5,6 +5,7 @@
 #--------------------------------------
 
 DOC[install]="辅助一键安装"
-function fun(){
+function fun_install(){
+    fun_set_bash
 
 }
