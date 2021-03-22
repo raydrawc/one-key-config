@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 #--------------------------------------
-# ssh相关脚本
+# 工具列脚本
 # @author raydrawc@gmail.com
 #--------------------------------------
 
-DOC[bash_set]="设置bash相关配置"
-function fun_bash_set() {
-  # 备份原来设置
-  if [ -f "$HOME/.bashrc.bc" ]; then
-  mv "$Home/.bashrc" "$Home/.bashrc.bc"
-  fi
-  if [ -f "$HOME/.profile" ]; then
-  mv "$Home/.profile" "$Home/.profile.bc"
-  fi
-
-
+DOC[set_bash]="设置bash相关配置"
+function fun_set_bash() {
+    today=`date +%Y%m%d`
+    cfg_path=$ROOT/bash/config/
+    for file in `ls $cfg_path` 
+    do
+        filetmp=~/.$file
+        if [[ -e $filetmp ]]
+        then # 备份配置
+            mv -f $filetmp $filetmp.today
+        fi
+        ln -s $cfg_path/$file $filetmp
+    done
 }
+

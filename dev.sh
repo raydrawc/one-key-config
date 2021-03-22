@@ -16,6 +16,54 @@ get_real_path(){
     echo "$( cd -P "$( dirname "$source" )" && pwd )"
 }
 
+# 检测是否在cygwin环境中
+in_cygwin(){
+    local os=$(uname)
+    [[ "${os:0:3}" == "CYG" ]]; return $?
+}
+
+# 检测某个函数是否已经定义
+is_fun_exists(){
+    declare -F "$1" > /dev/null; return $?
+}
+
+# 检测某个命令是否存在
+is_command_exists(){
+    command -v $1 >/dev/null; return $?
+}
+
+# 检测某个screen session是否存在
+# 注意此函数不是绝对可靠，有可能会找出名称相似的screen session
+is_screen_exists(){
+    [[ $(screen -ls | grep "$1" | wc -l ) -gt 0 ]] ; return $?
+}
+
+# 判定是否为整数
+is_integer(){
+    local re='^[0-9]+$'
+    [[ $1 =~ $re ]]; return $?
+}
+
+# 检查数组中是否存在某个元素
+# 参数1：数组
+# 参数2: 元素
+# 使用示例: in_array elems[@] $elem
+in_array(){
+    declare -a haystack=("${!1}")
+    local needle=${2}
+    for v in ${haystack[@]}; do
+        if [[ ${v} == ${needle} ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+# 检查当前运行环境中是否存在tty
+has_tty(){
+    [[ -t 1 ]]; return $?
+}
+
 # 调用函数
 _CALL_FUNCTION(){
     local fname="fun"
@@ -66,7 +114,7 @@ HOME=~
 declare -A DOC
 
 # 额外载入工具脚本
-scripts=( "ssh/ssh.sh" , "bash/bash.sh")
+scripts=( "bash/ssh.sh" , "bash/bash.sh")
 for f in ${scripts[@]}; do
     if [ ! -f ${ROOT}/${f} ]; then
         continue
