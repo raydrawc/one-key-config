@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/bin/bash
 #@author raydraw@gmail.com
 
 ## 获取当前文件绝对路径
@@ -10,7 +10,7 @@ curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
 ## 替换目标连接
-if [[ -f ~/.vimrc ]]; orelse [[ -f ~/_vimrc]]; then 
+if [[ -f ~/.vimrc ]]; or [[ -f ~/_vimrc]]; then 
     rm -f ~/.vimrc
     rm -f ~/_vimrc
     ln -s $SHELL_FOLDER/.vimrc ~/.vimrc

@@ -66,7 +66,7 @@ HOME=~
 declare -A DOC
 
 # 额外载入工具脚本
-scripts=( "ssh/ssh.sh" )
+scripts=( "ssh/ssh.sh" , "bash/bash.sh")
 for f in ${scripts[@]}; do
     if [ ! -f ${ROOT}/${f} ]; then
         continue

@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #--------------------------------------
-# ssh相关脚本
+# 配置安装脚本
 # @author raydrawc@gmail.com
 #--------------------------------------
 if [ "" == "$ROOT" ]; then
@@ -8,8 +8,12 @@ if [ "" == "$ROOT" ]; then
     exit 1
 fi
 
-DOC[creat_key]="创建新的ssh-key"
-function  fun_creat_key() {
-  ssh-keygen -t rsa -C "root@mail.com"
+INSTALL_ROOT=~/myconfig/
+
+
+DOC[vim]="安装个性化配置"
+fun_vim() {
+    mkdir -p $INSTALL_ROOT
+    git clone 
 }
 
