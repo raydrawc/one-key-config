@@ -1,0 +1,25 @@
+[user]
+	email = raydrawc@163.com
+	name = raydrawc
+[core]
+	editor = vim
+[push]
+	default = current
+[i18n]
+	commitEncoding = UTF-8
+	logOutputEncoding = UTF-8
+[color]
+	interactive = auto
+	status = auto
+	diff = auto
+	branch = auto
+[alias]
+    co = checkout
+    cm = commit
+    st = status
+    br = branch 
+    pl = pull
+    mg = merge
+    sh = stash 
+
+
