@@ -13,15 +13,16 @@ DOC[set_bash]="设置bash相关配置"
 function fun_set_bash() {
     today=`date +%Y%m%d`
     cfg_path=$ROOT/config/
-    cfgs=("bashrc" "myrc.sh" "profile")
+    cfgs=("bashrc" "myrc" "profile")
     for file in ${cfgs[@]};
     do
         filetmp=~/.$file
-        if [[ -e $filetmp ]];
-        then # 备份配置
+        if [[ -L $filetmp ]]; then
+            unlink $filetmp
+        elif [[ -e $filetmp ]]; then
+            # 备份配置
             mv -f $filetmp $filetmp.$today
         fi
-        unlink $filetmp
         ln -s $cfg_path/$file $filetmp
     done
 }
@@ -35,11 +36,12 @@ function fun_set_git() {
     for file in ${cfgs[@]};
     do
         filetmp=~/.$file
-        if [[ -e $filetmp ]];
-        then # 备份配置
+        if [[ -L $filetmp ]]; then
+            unlink $filetmp
+        elif [[ -e $filetmp ]]; then
+            # 备份配置
             mv -f $filetmp $filetmp.$today
         fi
-        unlink $filetmp
         ln -s $cfg_path/$file $filetmp
     done
 }
