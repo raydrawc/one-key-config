@@ -3,6 +3,7 @@
 	name = raydrawc
 [core]
 	editor = vim
+	trustctime = false
 [push]
 	default = current
 [i18n]

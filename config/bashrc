@@ -135,5 +135,3 @@ export SCREENDIR=$HOME/.screen
 ## 设置文件过滤
 export FZF_DEFAULT_COMMAND="fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build,cbin,ebin} --type f"
 source ~/.myrc
-
-export PATH=$PATH:/cygdrive/d/apps/erl10.7/bin
