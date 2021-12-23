@@ -133,5 +133,6 @@ export SCREENDIR=$HOME/.screen
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 ## 设置文件过滤
-export FZF_DEFAULT_COMMAND="fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build,cbin,ebin} --type f"
+alias fd='fdfind'
+
 source ~/.myrc

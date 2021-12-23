@@ -24,7 +24,6 @@ export SCREENDIR=$HOME/.screen
 # [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
 ## 设置文件过滤
-export FZF_DEFAULT_COMMAND="fd --exclude={.git,.idea,.vscode,.sass-cache,node_modules,build,cbin,ebin} --type f"
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
@@ -35,4 +34,10 @@ alias sobash="source ~/.bashrc"
 export PATH=$PATH:~/tools
 
 alias cman='man -M /usr/local/share/man/zh_CN'
+
+## 设置GO语言路径
+export GOROOT=/usr/local/go
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+
 
