@@ -16,7 +16,7 @@
 	branch = auto
 [alias]
     co = checkout
-    cm = commit
+    ci = commit
     st = status
     br = branch 
     pl = pull
